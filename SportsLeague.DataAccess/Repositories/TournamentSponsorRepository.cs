@@ -17,6 +17,8 @@ namespace SportsLeague.DataAccess.Repositories
         public async Task<TournamentSponsor?> GetByTournamentAndSponsorAsync(int tournamentId, int sponsorId)
         {
             var relation = await _dbSet
+                .Include(ts => ts.Tournament)   
+                .Include(ts => ts.Sponsor)      
                 .FirstOrDefaultAsync(ts => ts.TournamentId == tournamentId && ts.SponsorId == sponsorId);
 
             return relation;
@@ -27,6 +29,7 @@ namespace SportsLeague.DataAccess.Repositories
             var sponsorRelations = await _dbSet
                 .Where(ts => ts.SponsorId == sponsorId)
                 .Include(ts => ts.Tournament)
+                .Include(ts => ts.Sponsor) 
                 .ToListAsync();
 
             return sponsorRelations;
@@ -37,6 +40,7 @@ namespace SportsLeague.DataAccess.Repositories
             var tournamentRelations = await _dbSet
                 .Where(ts => ts.TournamentId == tournamentId)
                 .Include(ts => ts.Sponsor)
+                .Include(ts => ts.Tournament) 
                 .ToListAsync();
 
             return tournamentRelations;

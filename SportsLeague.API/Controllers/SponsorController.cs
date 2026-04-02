@@ -94,5 +94,68 @@ namespace SportsLeague.API.Controllers
                 return NotFound(new { message = ex.Message });
             }
         }
+
+        [HttpPost("{id}/tournaments/{tournamentId}")]
+        public async Task<IActionResult> RegisterSponsor(
+     int id,
+     int tournamentId,
+     [FromBody] TournamentSponsorRequestDTO dto)
+        {
+            try
+            {
+                var result = await _sponsorService.RegisterSponsorAsync(
+                    tournamentId,
+                    id,
+                    dto.ContractAmount);
+
+                var response = _mapper.Map<TournamentSponsorResponseDTO>(result);
+
+                return CreatedAtAction(
+                    nameof(GetTournamentsBySponsor),
+                    new { id = id },
+                    response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Conflict(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("{id}/tournaments")]
+        public async Task<IActionResult> GetTournamentsBySponsor(int id)
+        {
+            try
+            {
+                var tournaments = await _sponsorService
+                    .GetTournamentsBySponsorAsync(id);
+
+                var response = _mapper
+                    .Map<IEnumerable<TournamentResponseDTO>>(tournaments);
+
+                return Ok(response);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+        [HttpDelete("{id}/tournaments/{tournamentId}")]
+        public async Task<IActionResult> RemoveSponsor(int id, int tournamentId)
+        {
+            try
+            {
+                await _sponsorService.RemoveSponsorAsync(tournamentId, id);
+                return NoContent();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
     }
 }

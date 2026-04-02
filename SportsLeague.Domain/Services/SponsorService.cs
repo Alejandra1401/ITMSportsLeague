@@ -109,29 +109,29 @@ namespace SportsLeague.Domain.Services
             await _sponsorRepository.DeleteAsync(id);
         }
 
-        public async Task RegisterSponsorAsync(int tournamentId, int sponsorId, decimal contractAmount)
+        public async Task<TournamentSponsor> RegisterSponsorAsync(int tournamentId,int sponsorId,decimal contractAmount)
         {
-            // VALIDAR MONTO
+            //VALIDAR MONTO
             if (contractAmount <= 0)
             {
                 throw new InvalidOperationException("El monto del contrato debe ser mayor a cero");
             }
 
-            // VALIDAR TORNEO
+            //  TORNEO
             var tournament = await _tournamentRepository.GetByIdAsync(tournamentId);
             if (tournament == null)
             {
                 throw new KeyNotFoundException($"No se encontró el torneo con ID {tournamentId}");
             }
 
-            // VALIDAR SPONSOR
-            var sponsorExists = await _sponsorRepository.ExistsAsync(sponsorId);
-            if (!sponsorExists)
+            // SPONSOR
+            var sponsor = await _sponsorRepository.GetByIdAsync(sponsorId);
+            if (sponsor == null)
             {
                 throw new KeyNotFoundException($"No se encontró el sponsor con ID {sponsorId}");
             }
 
-            // VALIDAR DUPLICADO
+            // DUPLICADO
             var relationExists = await _tournamentSponsorRepository
                 .GetByTournamentAndSponsorAsync(tournamentId, sponsorId);
 
@@ -140,12 +140,17 @@ namespace SportsLeague.Domain.Services
                 throw new InvalidOperationException("El sponsor ya está vinculado a este torneo");
             }
 
+            //  RELACIÓN
             var newRelation = new TournamentSponsor
             {
                 TournamentId = tournamentId,
                 SponsorId = sponsorId,
                 ContractAmount = contractAmount,
-                JoinedAt = DateTime.UtcNow
+                JoinedAt = DateTime.UtcNow,
+
+                //  navegación
+                Tournament = tournament,
+                Sponsor = sponsor
             };
 
             _logger.LogInformation(
@@ -153,6 +158,9 @@ namespace SportsLeague.Domain.Services
                 sponsorId, tournamentId);
 
             await _tournamentSponsorRepository.CreateAsync(newRelation);
+
+            // RETORNO LA RELACION 
+            return newRelation;
         }
 
         public async Task<IEnumerable<Tournament>> GetTournamentsBySponsorAsync(int sponsorId)
