@@ -1,0 +1,34 @@
+﻿using SportsLeague.DataAccess.Context;
+using SportsLeague.Domain.Entities;
+using SportsLeague.Domain.Interfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace SportsLeague.DataAccess.Repositories
+{
+    public class GoalRepository : GenericRepository<Goal>, IGoalRepository
+    {
+        public GoalRepository(LeagueDbContext context) : base(context) { }
+
+        public async Task<IEnumerable<Goal>> GetByMatchAsync(int matchId)
+        {
+            return await _dbSet
+                .Where(g => g.MatchId == matchId)
+                .OrderBy(g => g.Minute)//Ordenar de forma ascendente por el minuto del gol
+                //.OrderByDescending(g => g.Minute)//Ordenar de porfa desendente por minuto 
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Goal>> GetByMatchWithDetailsAsync(int matchId)
+        {
+            return await _dbSet
+                .Where(g => g.MatchId == matchId)
+                .Include(g => g.Player)
+                .OrderBy(g => g.Minute)
+                .ToListAsync();
+        }
+    }
+
+}
