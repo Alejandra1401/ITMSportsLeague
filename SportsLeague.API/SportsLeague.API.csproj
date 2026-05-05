@@ -17,12 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SportsLeague.Domain\SportsLeague.Domain.csproj" />
-    <ProjectReference Include="..\SportsLeague.DataAccess\SportsLeague.DataAccess.csproj" />
+    <Folder Include="Middlewares\" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Middlewares\" />
+    <ProjectReference Include="..\SportsLeague.DataAccess\SportsLeague.DataAccess.csproj" />
+    <ProjectReference Include="..\SportsLeague.Domain\SportsLeague.Domain.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
